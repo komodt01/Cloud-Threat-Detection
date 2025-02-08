@@ -1,0 +1,65 @@
+version: 0.2
+
+phases:
+  install:
+    commands:
+      - echo "Checking OS version..."
+      - cat /etc/os-release  # Debugging: Print OS details
+      
+      - echo "Installing AWS CLI, Terraform, and security tools..."
+      - |
+        if grep -qi "Amazon Linux" /etc/os-release; then
+          echo "Detected Amazon Linux, using yum..."
+          yum update -y
+          yum install -y unzip
+        elif grep -qi "Ubuntu" /etc/os-release || grep -qi "Debian" /etc/os-release; then
+          echo "Detected Ubuntu/Debian, using apt-get..."
+          apt-get update && apt-get install -y unzip
+        else
+          echo "⚠️ Unsupported OS detected!"
+          exit 1
+        fi
+
+      - curl -O https://releases.hashicorp.com/terraform/1.5.0/terraform_1.5.0_linux_amd64.zip
+      - unzip terraform_1.5.0_linux_amd64.zip && mv terraform /usr/local/bin/
+      - pip install awscli checkov
+
+  build:
+    commands:
+      - echo "Running Terraform security scan with Checkov..."
+      - checkov -d terraform/
+
+      - echo "Validating IAM policies with AWS IAM Access Analyzer..."
+      - |
+        IAM_ROLE_ARN=$(aws iam list-roles --query 'Roles[?contains(Arn, `SecurityAdminRole`)].Arn' --output text)
+        if [[ -z "$IAM_ROLE_ARN" ]]; then
+          echo "⚠️ ERROR: Could not retrieve IAM Role ARN."
+          exit 1
+        fi
+        aws iam generate-service-last-accessed-details --arn "$IAM_ROLE_ARN" > iam_access_analysis.json
+
+      - cat iam_access_analysis.json
+
+      - echo "Running AWS Security Hub compliance check..."
+      
+      # ✅ FIXED MULTI-LINE YAML SYNTAX
+      - |
+        aws securityhub get-findings \
+          --filters '{"ComplianceStatus": [{"Value": "FAILED", "Comparison": "EQUALS"}]}' \
+          --query 'Findings[*].Id' \
+          --output json \
+          --region us-east-1 > findings.json 2> error.log
+
+      # ✅ FIXED IF STATEMENT INDENTATION
+      - |
+        if [ -s error.log ]; then
+          echo "⚠️ ERROR: Failed to retrieve findings from AWS Security Hub."
+          cat error.log
+          exit 1
+        fi
+
+  post_build:
+    commands:
+      - echo "Terraform & IAM Security Validation Complete!"
+      - echo "Checking if AWS Security Hub is enabled..."
+      - aws securityhub get-enabled-standards
