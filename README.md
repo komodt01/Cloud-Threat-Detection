@@ -1,19 +1,6 @@
 # 🔐 Cloud Threat Detection & Automated Response System
 
 ## 🎯 Overview
-This project implements **real-time cloud threat detection and automated response** in AWS. It integrates **AWS Security Hub, GuardDuty, IAM Analyzer, and AWS Lambda** to detect security incidents and automatically remediate threats.
-
-# 🔐 Cloud Threat Detection & Automated Response System
-
-## 🎯 Overview
-This project implements **real-time cloud threat detection and automated response** in AWS. It integrates **AWS Security Hub, GuardDuty, IAM Analyzer, and AWS Lambda** to detect security incidents and automatically remediate threats.  
-Additionally, security logs are forwarded to **SIEM (Splunk or ELK)** for advanced threat correlation and incident response.
-
----
-
-# 🔐 Cloud Threat Detection & Automated Response System
-
-## 🎯 Overview
 This project implements **real-time cloud threat detection and automated response** in AWS. It integrates **AWS Security Hub, GuardDuty, IAM Analyzer, AWS Lambda, and SIEM (Splunk or ELK)** to detect security incidents, forward security logs for analysis, and automatically remediate threats.
 
 ---
