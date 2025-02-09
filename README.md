@@ -90,4 +90,18 @@ aws iam delete-role --role-name SecurityAdminRole
 aws lambda delete-function --function-name RevokeIAMAccess
 aws logs delete-log-group --log-group-name security-logs
 
+## 🎯 Lessons Learned
+
+Throughout this project, I encountered and resolved various challenges related to **AWS security automation, IAM permissions, SIEM integration, and AWS CodeBuild configuration**. Key takeaways include:
+
+✅ **IAM Permissions Matter:** Ensuring that AWS services (CodeBuild, Lambda, IAM) have the correct **trust relationships and permissions** prevents deployment failures.  
+✅ **Test AWS CLI Commands Before Automating:** Running commands manually in AWS CLI **before adding them to `buildspec.yml`** helped catch errors early.  
+✅ **YAML Formatting is Critical in AWS CodeBuild:** Indentation and proper multi-line syntax (`|`) **prevent build failures**.  
+✅ **SIEM Log Forwarding Requires Correct AWS Kinesis Configuration:** Testing **Splunk/ELK ingestion** with sample log events ensured smooth security monitoring.  
+✅ **Lambda Needs Proper IAM Policies for Automated Remediation:** Without the correct **IAM permissions**, Lambda couldn’t revoke access, so updating `iam:UpdateAccessKey` and `iam:DetachUserPolicy` was necessary.  
+✅ **Well-Organized GitHub Repositories Make a Difference:** A structured repository with **separate project folders, clear documentation, and diagrams** makes it easier to maintain and showcase security solutions.  
+
+---
+
+
 
